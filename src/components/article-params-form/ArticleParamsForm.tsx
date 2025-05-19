@@ -4,6 +4,7 @@ import { Select } from 'src/ui/select';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
 import { Text } from 'src/ui/text';
+import { Spacing } from 'src/ui/spacing';
 
 import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
 import React, { useRef, useState } from 'react';
@@ -18,6 +19,7 @@ import {
 	fontColors,
 	backgroundColors,
 	contentWidthArr,
+	OptionType,
 } from 'src/constants/articleProps';
 
 type ArticleParamsFormProps = {
@@ -30,25 +32,11 @@ export const ArticleParamsForm = ({
 	const [isFormOpen, setIsFormOpen] = useState<boolean>(false); //состояние откр/закр
 
 	//стили
-	const defaultStateForm = useRef<ArticleStateType>(defaultArticleState);
-
-	const [fontFamily, setFontFamily] = useState(
-		defaultStateForm.current.fontFamilyOption
-	);
-	const [fontSize, setFontSize] = useState(
-		defaultStateForm.current.fontSizeOption
-	);
-	const [backgroundColor, setBackgroundColor] = useState(
-		defaultStateForm.current.backgroundColor
-	);
-	const [fontColor, setFontColor] = useState(
-		defaultStateForm.current.fontColor
-	);
-	const [contentWidth, setContentWidth] = useState(
-		defaultStateForm.current.contentWidth
-	);
-
+	const defaultStateForm = defaultArticleState;
 	const refDiv = useRef<HTMLDivElement | null>(null);
+
+	const [formState, setFormState] =
+		useState<ArticleStateType>(defaultArticleState);
 
 	const toggleForm = () => {
 		//закрыть/открыть форму
@@ -63,37 +51,29 @@ export const ArticleParamsForm = ({
 		onChange: (newState) => setIsFormOpen(newState),
 	});
 
+	const handleOnChange = (field: keyof ArticleStateType) => {
+		return (value: OptionType) => {
+			setFormState((prevState) => ({ ...prevState, [field]: value }));
+		};
+	};
+
 	//применить форму
 	const handleApply = (e: React.FormEvent) => {
 		e.preventDefault();
-		setArticleState({
-			fontFamilyOption: fontFamily,
-			fontColor: fontColor,
-			backgroundColor: backgroundColor,
-			contentWidth: contentWidth,
-			fontSizeOption: fontSize,
-		});
+		setArticleState(formState);
 		toggleForm();
 	};
 
 	//сброс до дефолтных настроек
 	const handleReset = () => {
-		setArticleState(defaultStateForm.current);
-
-		setFontFamily(defaultStateForm.current.fontFamilyOption);
-		setFontSize(defaultStateForm.current.fontSizeOption);
-		setBackgroundColor(defaultStateForm.current.backgroundColor);
-		setFontColor(defaultStateForm.current.fontColor);
-		setContentWidth(defaultStateForm.current.contentWidth);
+		setArticleState(defaultStateForm);
+		setFormState(defaultArticleState);
 		toggleForm();
 	};
 
 	return (
 		<div ref={refDiv}>
-			<ArrowButton
-				isOpen={isFormOpen}
-				onClick={() => setIsFormOpen(!isFormOpen)}
-			/>
+			<ArrowButton isOpen={isFormOpen} onClick={toggleForm} />
 
 			<aside
 				className={clsx(styles.container, {
@@ -106,38 +86,43 @@ export const ArticleParamsForm = ({
 					<Text size={31} weight={800} uppercase={true}>
 						Задайте параметры
 					</Text>
-
+					<Spacing />
 					<Select
-						selected={fontFamily}
+						selected={formState.fontFamilyOption}
 						options={fontFamilyOptions}
 						title='шрифт'
-						onChange={setFontFamily}
+						onChange={handleOnChange('fontFamilyOption')}
 					/>
+					<Spacing />
 					<RadioGroup
 						name='font-size'
-						selected={fontSize}
+						selected={formState.fontSizeOption}
 						options={fontSizeOptions}
 						title='размер шрифта'
-						onChange={setFontSize}
+						onChange={handleOnChange('fontSizeOption')}
 					/>
+					<Spacing />
 					<Select
-						selected={fontColor}
+						selected={formState.fontColor}
 						options={fontColors}
 						title='цвет шрифта'
-						onChange={setFontColor}
+						onChange={handleOnChange('fontColor')}
 					/>
+					<Spacing />
 					<Separator />
+					<Spacing />
 					<Select
-						selected={backgroundColor}
+						selected={formState.backgroundColor}
 						options={backgroundColors}
 						title='цвет фона'
-						onChange={setBackgroundColor}
+						onChange={handleOnChange('backgroundColor')}
 					/>
+					<Spacing />
 					<Select
-						selected={contentWidth}
+						selected={formState.contentWidth}
 						options={contentWidthArr}
 						title='ширина контента'
-						onChange={setContentWidth}
+						onChange={handleOnChange('contentWidth')}
 					/>
 					<div className={styles.bottomContainer}>
 						<Button
