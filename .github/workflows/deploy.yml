@@ -1,8 +1,8 @@
-name: Deploy React App
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -19,12 +19,22 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - run: npm install
-    - run: npm run build
-    
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Verify dist contents
+      run: |
+        echo "=== Dist folder contents ==="
+        ls -la dist/
+        echo "=== Checking for index.html ==="
+        ls -la dist/index.html
+        
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build
-        enable_jekyll: false
+        branch: gh-pages
+        folder: dist
+        clean: true
