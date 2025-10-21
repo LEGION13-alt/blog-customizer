@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy React to GitHub Pages
 
 on:
   push:
@@ -23,15 +23,21 @@ jobs:
       run: npm install
       
     - name: Build project
-      run: npm run build
-      
-    - name: Verify dist contents
       run: |
-        echo "=== Dist folder contents ==="
+        npm run build
+        echo "=== Build completed ==="
         ls -la dist/
-        echo "=== Checking for index.html ==="
-        ls -la dist/index.html
+      
+    - name: Create 404.html for SPA
+      run: |
+        cp dist/index.html dist/404.html
+        echo "=== Created 404.html ==="
         
+    - name: Add .nojekyll file
+      run: |
+        touch dist/.nojekyll
+        echo "=== Created .nojekyll ==="
+      
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
